@@ -1,0 +1,66 @@
+<header>
+  <div class="window-commands">
+    <a class="btn-minimize" (click)="minimize()">🗕</a>
+    <a class="btn-maximize" (click)="maximized ? restore():maximize()">{{maximized? '🗗':'🗖'}}</a>
+    <a class="btn-close"  (click)="close()">🗙</a>
+  </div>
+</header>
+<main>
+  <aside>
+    <div class="aside-info">
+      <img class="logo" src="assets/icon.png" alt="Heroes Of The Strife"/>
+
+      <a class="patreon-link" href="https://www.patreon.com/commanders" target="_blank">
+        <img src="assets/pateron.png" alt="Boosty" title="Support Us On Patreon"/>
+      </a>
+      <a class="boosty-link" href="https://boosty.to/commanders" target="_blank">
+        <img src="assets/boosty.svg" alt="Boosty" title="Support Us On Boosty"/>
+      </a>
+      <a class="discord-link" href="https://discord.gg/8dkWjYgbjY" target="_blank">
+        <img src="assets/discord.png" alt="Boosty" title="Jon our Discord Group"/>
+      </a>
+    </div>
+
+    <div class="aside-commands" *ngIf="data.installation$ | async as app">
+      <div class="installation" *ngIf="app.downloading">
+        <div class="installation-tip">
+          Downloading:
+        </div>
+        <div class="installation-tip">
+          <div class="installation-amount">{{app.loaded | fileSize}} / {{app.size | fileSize}}</div>
+          <div class="app-speed">({{app.speed| fileSize :1:1: 2}}/sec)</div>
+        </div>
+        <div class="progress-bar-aside">
+          <div class="progress-bar__status-bar" [style]="{'--status': app.progress || '0','width': app.progress+'%'}"></div>
+        </div>
+      </div>
+
+      <div class="relative mt-10 mb-10">
+        <button id="" (click)="data.toggleDropdown('version',$event)" class="working-directory">
+          <span *ngIf="app.version">Version: {{app.version.title}}</span>
+          <span *ngIf="!app.version">Select Version<span></span></span>
+        </button>
+        <ul class="dropdown no-drag" [hidden]="data.dropdown !== 'version'">
+          <li *ngFor="let version of app.versions" (click)="data.setVersion(version.id)">{{version.title}}</li>
+        </ul>
+      </div>
+
+      <div class="main-button" *ngIf="data.installation$ | async as app">
+        <a class="button inactive" *ngIf="!app.version && app.ready">{{ 'PAGES.HOME.INSTALL' | translate }}</a>
+        <a class="button inactive" *ngIf="app.initializing">{{ 'PAGES.HOME.INITIALIZING' | translate }}</a>
+        <a class="button" *ngIf="!app.initializing && !app.ready && !app.downloading" (click)="data.installGame()">{{ 'PAGES.HOME.INSTALL' | translate }}</a>
+        <a class="button" *ngIf="app.downloading" (click)="data.stopInstallation()">{{ 'PAGES.HOME.STOP' | translate }}</a>
+        <a class="button" *ngIf="app.version && app.ready" (click)="data.startGame()">{{ 'PAGES.HOME.PLAY' | translate }}</a>
+        <a class="button button-settings" [class.active]="setup" (click)="toggleSetup()">⚙</a>
+      </div>
+    </div>
+  </aside>
+
+  <section [hidden]="!setup">
+    <router-outlet class="content"></router-outlet>
+  </section>
+  <section [hidden]="setup" >
+    <iframe src="https://sites.google.com/view/commandersconflict/" width="100%">
+    </iframe>
+  </section>
+</main>

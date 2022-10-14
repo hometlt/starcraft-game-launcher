@@ -1,0 +1,46 @@
+{
+  "common": [
+    "AssetMods/Assets01.SC2Mod",
+    "AssetMods/Assets02.SC2Mod",
+    "AssetMods/Assets03.SC2Mod",
+    "AssetMods/Assets04.SC2Mod",
+    "AssetMods/Assets05.SC2Mod",
+    "AssetMods/Assets06.SC2Mod"
+  ],
+  "versions": [
+    {
+      "id": "0.0.1.6",
+      "title": "0.0.1.6 Beta",
+      "directory": "0.0.1.6"
+    },
+    {
+      "id": "Development",
+      "title": "Development",
+      "directory": "Development",
+      "hidden": true
+    }
+  ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

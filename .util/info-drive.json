@@ -1,0 +1,180 @@
+[
+  {
+    "id": "1d6W6_RwbwI-pXvu5Iu438O0Q5qH_FAbQ",
+    "size": 1842037205,
+    "created": 1665614655636,
+    "modified": 1665553881000,
+    "path": "AssetMods/Assets01.SC2Mod"
+  },
+  {
+    "id": "1GVsHpYf2bNUGI6SEV6SCV6R__lxb7vSc",
+    "size": 1883267588,
+    "created": 1665616232640,
+    "modified": 1665556128000,
+    "path": "AssetMods/Assets02.SC2Mod"
+  },
+  {
+    "id": "1IG9PT3mJ8SnYHa2M5WE7bnJcV87jxeZd",
+    "size": 1885105514,
+    "created": 1665624599945,
+    "modified": 1665614785000,
+    "path": "AssetMods/Assets03.SC2Mod"
+  },
+  {
+    "id": "1IHOdjAftpS0SP-6cvnNhjqwDnkJEvT6G",
+    "size": 2199912810,
+    "created": 1665618015226,
+    "modified": 1665557422000,
+    "path": "AssetMods/Assets04.SC2Mod"
+  },
+  {
+    "id": "1_6LLX_2uW1qz2xGDOLoZBi3I0lbe5qoC",
+    "size": 1885765300,
+    "created": 1665631078514,
+    "modified": 1665617001000,
+    "path": "AssetMods/Assets05.SC2Mod"
+  },
+  {
+    "id": "1e9PWuAH5xex8iUxkg_GqCdfJ99NvH9j3",
+    "size": 1720640928,
+    "created": 1665623953076,
+    "modified": 1665618358000,
+    "path": "AssetMods/Assets06.SC2Mod"
+  },
+  {
+    "path": "Versions/0.0.1.6/DataMods/Loot.SC2Mod",
+    "name": "Loot.SC2Mod",
+    "id": "1YTue4tPKwhB6RiUZ064Ndmda_NspicRm",
+    "size": 49644,
+    "created": 1665630482938,
+    "modified": 1665618369000
+  },
+  {
+    "path": "Versions/0.0.1.6/DataMods/Data.SC2Mod",
+    "name": "Data.SC2Mod",
+    "id": "1VcvLN6bkasot2RrkVryYAKruUQ2rNFAd",
+    "size": 4479313,
+    "created": 1665631088909,
+    "modified": 1665618368000
+  },
+  {
+    "path": "Versions/0.0.1.6/DataMods/DataLocalization.SC2Mod",
+    "name": "DataLocalization.SC2Mod",
+    "id": "1xruVa5J6lhhmRS8AfPykZFLWMMxFE3yf",
+    "size": 2091,
+    "created": 1665630483830,
+    "modified": 1665618368000
+  },
+  {
+    "path": "Versions/0.0.1.6/DataMods/Core.SC2Mod",
+    "name": "Core.SC2Mod",
+    "id": "10UCvavkOjn1EXXmqTrOslw9FoOeTc6XI",
+    "size": 16607375,
+    "created": 1665631085723,
+    "modified": 1665618365000
+  },
+  {
+    "path": "Versions/0.0.1.6/MapMods/BattleForSlayn.SC2Mod",
+    "name": "BattleForSlayn.SC2Mod",
+    "id": "19VjGh0gqu0CCbfUB97aMu16PiiMNAxXT",
+    "size": 76575,
+    "created": 1665630485299,
+    "modified": 1665618372000
+  },
+  {
+    "path": "Versions/0.0.1.6/MapMods/ProtossData.SC2Mod",
+    "name": "ProtossData.SC2Mod",
+    "id": "1iiwJt1bOU6wg7L0-YTAjvyYrD9aAoAkT",
+    "size": 63763,
+    "created": 1665630485299,
+    "modified": 1665618372000
+  },
+  {
+    "path": "Versions/0.0.1.6/HeroMods/Talandar.SC2Mod",
+    "name": "Talandar.SC2Mod",
+    "id": "1ePqnIeBReQqIX0mTpgSluTtWHmeNSmUb",
+    "size": 1032732,
+    "created": 1665630485299,
+    "modified": 1665618371000
+  },
+  {
+    "path": "Versions/0.0.1.6/HeroMods/Selendis.SC2Mod",
+    "name": "Selendis.SC2Mod",
+    "id": "1L3yDRU8fX_Z4HwS-0m_e2CKaVItabD-F",
+    "size": 524036,
+    "created": 1665630485299,
+    "modified": 1665618371000
+  },
+  {
+    "path": "Versions/0.0.1.6/HeroMods/Katarina.SC2Mod",
+    "name": "Katarina.SC2Mod",
+    "id": "14U4hbXNMbIWqVaDLvUxU3-8J1MAYVNow",
+    "size": 104224,
+    "created": 1665630485299,
+    "modified": 1665618370000
+  },
+  {
+    "path": "Versions/0.0.1.6/HeroMods/Malfurion.SC2Mod",
+    "name": "Malfurion.SC2Mod",
+    "id": "1B1kQfv9Aa0D1yDAeqXg7gdAQlC1pEGxD",
+    "size": 101510,
+    "created": 1665630485299,
+    "modified": 1665618370000
+  },
+  {
+    "path": "Versions/0.0.1.6/HeroMods/Diablo.SC2Mod",
+    "name": "Diablo.SC2Mod",
+    "id": "1s7OnCrGVupaH5lhDVOzeVO3EEfg7vNAb",
+    "size": 160817,
+    "created": 1665630483830,
+    "modified": 1665618369000
+  },
+  {
+    "path": "Versions/0.0.1.6/HeroMods/Abathur.SC2Mod",
+    "name": "Abathur.SC2Mod",
+    "id": "1TUys3HK-O_jJck-WEWnXLdrY9l8sBtE5",
+    "size": 197155,
+    "created": 1665630483830,
+    "modified": 1665618369000
+  },
+  {
+    "path": "Versions/0.0.1.6/TempMods/Assets.SC2Mod",
+    "name": "Assets.SC2Mod",
+    "id": "131e5of50VRdBM5utgbYkYe6lHxnzUqUS",
+    "size": 34429486,
+    "created": 1665631102235,
+    "modified": 1665618386000
+  },
+  {
+    "path": "Versions/0.0.1.6/VersionControlMods/BattleForSlayn.SC2Mod",
+    "name": "BattleForSlayn.SC2Mod",
+    "id": "1-pRcY7kte-TzzrD8O0xp1ViE0sgZcLxs",
+    "size": 2209,
+    "created": 1665630481014,
+    "modified": 1665618358000
+  },
+  {
+    "path": "Versions/Development/VersionControlMods/README.md",
+    "name": "README.md",
+    "id": "1torz246PdFUKSWa7JpP3itkWUF2bprKB",
+    "size": 76,
+    "created": 1665650005745,
+    "modified": 1659633840000
+  },
+  {
+    "path": "Versions/Development/VersionControlMods/BattleForSlayn.SC2Mod",
+    "name": "BattleForSlayn.SC2Mod",
+    "id": "1JONO_G2G0TDOGTbcM9vNfDyXxCWm8s8y",
+    "size": 2377,
+    "created": 1665649980661,
+    "modified": 1659630137000
+  },
+  {
+    "path": "Versions/Development/TEST.md",
+    "name": "TEST.md",
+    "id": "1Di6BWWP0uN-7uvIAWWVAdaQW1mBsPGd-",
+    "size": 76,
+    "created": 1665650024308,
+    "modified": 1659633840000
+  }
+]

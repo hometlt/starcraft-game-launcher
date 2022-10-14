@@ -1,0 +1,12 @@
+{
+  "name": "resurgense-of-the-storm-launcher",
+  "description": "Resurgence Of The Storm",
+  "author": {
+    "name": "Ponomarev Denis",
+    "email": "ponomarevtlt@gmail.com"
+  },
+  "version": "1.0",
+  "main": "main.js",
+  "dependencies": {
+  }
+}

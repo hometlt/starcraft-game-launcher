@@ -1,2 +1,2 @@
 # game-launcher
-Resurgense Of The Storm launcher
+StarCraft Mod "Resurgense Of The Storm" Installer And Launcher

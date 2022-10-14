@@ -3,7 +3,7 @@ import {google} from "googleapis";
 import * as https from "https";
 import {DomJS, Element} from "dom-js";
 import * as storage from 'electron-json-storage'
-import config from "../config/config";
+import config from "./config/config";
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -393,6 +393,6 @@ export class GoogleDriveAPI extends FileClient {
 export class YandexDiskWebDAV extends WebDAV{
   directory = "/SC2/Commanders Conflict/"
   host = 'webdav.yandex.ru'
-  auth = config.yandex.token,
+  auth = config.yandex.token
   infourl = "files/ydisk"
 }

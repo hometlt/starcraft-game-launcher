@@ -643,7 +643,7 @@
 
 ## 2.2.0 (2017-11-28)
 
-* Brought back scripts defined in webpack.config.js ([441da3d](https://github.com/maximegris/angular-electron/commit/441da3d))
+* Brought back scripts defined in webpack.config.ts ([441da3d](https://github.com/maximegris/angular-electron/commit/441da3d))
 * migrate to Angular 5.0.3 ([f4bc5b2](https://github.com/maximegris/angular-electron/commit/f4bc5b2))
 * Update LICENSE badge ([fa783aa](https://github.com/maximegris/angular-electron/commit/fa783aa))
 * Update to electron-builder ([0e94b52](https://github.com/maximegris/angular-electron/commit/0e94b52))

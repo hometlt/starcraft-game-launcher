@@ -1,11 +1,11 @@
 {
-  "name": "angular-electron",
-  "version": "11.1.0",
-  "description": "Angular 14 with Electron 19 (Typescript + SASS + Hot Reload)",
-  "homepage": "https://github.com/maximegris/angular-electron",
+  "name": "resurgense-of-the-storm-launcher",
+  "version": "1.1.0",
+  "description": "Resurgence Of The Storm",
+  "homepage": "https://github.com/hometlt/game-launcher",
   "author": {
-    "name": "Maxime GRIS",
-    "email": "maxime.gris@gmail.com"
+    "name": "Ponomarev Denis",
+    "email": "ponomarevtlt@gmail.com"
   },
   "keywords": [
     "angular",
@@ -22,7 +22,6 @@
     "linux"
   ],
   "main": "app/main.js",
-  "private": true,
   "scripts": {
     "postinstall": "electron-builder install-app-deps",
     "ng": "ng",

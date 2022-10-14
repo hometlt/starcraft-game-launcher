@@ -9,12 +9,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.YandexDiskWebDAV = exports.GoogleDriveAPI = exports.GoogleDriveWebDAV = exports.LocalFileClient = exports.WebDAV = exports.UpdateClientHeroku = exports.FileClient = void 0;
+exports.YandexDiskWebDAV = exports.GoogleDriveAPI = exports.LocalFileClient = exports.WebDAV = exports.UpdateClientHeroku = exports.FileClient = void 0;
 const fs = require("fs");
 const googleapis_1 = require("googleapis");
 const https = require("https");
 const dom_js_1 = require("dom-js");
 const storage = require("electron-json-storage");
+const config_1 = require("./config/config");
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const errorCodes = {
     401: 'Auth error',
@@ -71,7 +72,7 @@ exports.FileClient = FileClient;
 class UpdateClientHeroku extends FileClient {
     constructor() {
         super();
-        this.infohost = "sc2-all-races.herokuapp.com/hots";
+        this.infohost = config_1.default.server.host;
         this.infodomain = "";
         this.infopath = "";
         this.infourl = "";
@@ -312,24 +313,16 @@ class LocalFileClient extends FileClient {
     }
 }
 exports.LocalFileClient = LocalFileClient;
-class GoogleDriveWebDAV extends WebDAV {
-    constructor() {
-        super(...arguments);
-        this.host = 'dav-pocket.appspot.com/docso';
-        this.auth = 'OAuth AIzaSyA9pTko4hGdscNeSD2-zLa5YhCMnug6fIY';
-    }
-}
-exports.GoogleDriveWebDAV = GoogleDriveWebDAV;
 class GoogleDriveAPI extends FileClient {
     constructor() {
         super();
         this.client = null;
         this.drive = null;
         this.cache = {};
-        this.clientId = "626157511978-77etuu4h21krl1s267v51180cg45ot74.apps.googleusercontent.com";
-        this.clientSecret = "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";
-        this.refreshToken = "1//0ctwhPF2xNOyrCgYIARAAGAwSNwF-L9Ir0fweauyWsgLUJm_xj8ce-3U6KetTGwQL4ag1k--ZLch5msFbgBmV6Pjfh8RgDQ4-nDo";
-        this.rootFolderId = `1X7TKU3biEEI8f_QqZ0VlDiJQ8pgTlDNP`;
+        this.clientId = config_1.default.google.clientId;
+        this.clientSecret = config_1.default.google.clientSecret;
+        this.refreshToken = config_1.default.google.refreshToken;
+        this.rootFolderId = config_1.default.google.rootFolderId;
         this.infourl = "files/gdrive";
         this.client = googleapis_1.google.auth.fromJSON({
             type: "authorized_user",
@@ -415,7 +408,7 @@ class YandexDiskWebDAV extends WebDAV {
         super(...arguments);
         this.directory = "/SC2/Commanders Conflict/";
         this.host = 'webdav.yandex.ru';
-        this.auth = 'OAuth y0_AgAAAAABtKHXAAhrwwAAAADPIH6Z4KcCiFKYQx-3gqSOJYYNt54ipbQ';
+        this.auth = config_1.default.yandex.token;
         this.infourl = "files/ydisk";
     }
 }

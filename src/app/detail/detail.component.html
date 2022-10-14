@@ -5,7 +5,7 @@
       Star Craft 2 Directory
     </div>
     <div class="flex-grow">
-      <input class="working-directory" (click)="data.directoryDialog()" type="text" disabled [value]="app.directory|| ''"/>
+      <input class="working-directory" (click)="data.directoryDialog()" type="text" disabled [value]="app.gameDirectory|| ''"/>
     </div>
   </div>
   <div class="flex mb-10">
@@ -13,7 +13,7 @@
       Mod Directory
     </div>
     <div class="flex-grow">
-      <input class="working-directory inactive" (click)="data.directoryDialog()" type="text" disabled value="Mods\Commanders Conflict"/>
+      <input class="working-directory inactive" (click)="data.directoryDialog()" type="text" disabled [value]="app.modDirectory"/>
     </div>
   </div>
   <div class="flex mb-10">

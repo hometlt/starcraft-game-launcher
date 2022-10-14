@@ -37,7 +37,7 @@
 
       <div class="relative mt-10 mb-10">
         <button id="" (click)="data.toggleDropdown('version',$event)" class="working-directory">
-          <span *ngIf="app.version">Version: {{app.version.title}}</span>
+          <span *ngIf="app.version">Version: {{app.version}}</span>
           <span *ngIf="!app.version">Select Version<span></span></span>
         </button>
         <ul class="dropdown no-drag" [hidden]="data.dropdown !== 'version'">

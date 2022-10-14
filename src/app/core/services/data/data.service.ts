@@ -21,7 +21,9 @@ export interface InstallationFileData  {
 export interface InstallationData {
   host?: string,
   version?: string,
-  directory?: string,
+  versions?: any,
+  gameDirectory?: string,
+  modDirectory?: string,
   initializing?: boolean,
   speed?: number,
   downloading?: boolean
@@ -66,7 +68,8 @@ export class DataService {
        this.installation$.next({
 
          version: null,
-         directory: "N/A",
+         gameDirectory: "N/A",
+         modDirectory: "N/A",
          ready: false,
          downloading: true,
          error: false,

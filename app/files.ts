@@ -4,6 +4,7 @@ import * as https from "https";
 import {DomJS, Element} from "dom-js";
 import * as storage from 'electron-json-storage'
 import config from "./config/config";
+import * as isStream from 'is-stream'
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -83,7 +84,10 @@ export class UpdateClientHeroku extends FileClient {
       port: 443,
       path: this.infopath + "/" + this.versionsurl,
       method: 'GET'
-    }, 'json')
+    }, 'json').then(response => {
+      // @ts-ignore
+      return response.versions
+    })
   }
   files (){
     return request({
@@ -284,6 +288,8 @@ export class LocalFileClient extends FileClient{
   setCurrentVersion(version){
     this.version = version
     this.active++
+
+    // VersionControlMods
     return new Promise((resolve,reject) =>{
       storage.set('version', version, error =>  {
         this.active--
@@ -303,7 +309,7 @@ export class LocalFileClient extends FileClient{
 }
 
 export class GoogleDriveAPI extends FileClient {
-  host: 'www.googleapis.com'
+  host= 'www.googleapis.com'
   client = null
   drive = null
   cache = {}
@@ -386,7 +392,8 @@ export class GoogleDriveAPI extends FileClient {
     }
   }
   async stream(fileData){
-    return this.drive.files.get({fileID: fileData.id, alt: 'media' }, {responseType: 'stream'})
+    let somereadstream = await this.drive.files.get({fileId: fileData.id, alt: 'media' }, {responseType: 'stream'})
+    return somereadstream.data
   }
 }
 

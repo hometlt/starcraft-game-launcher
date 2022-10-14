@@ -32,7 +32,7 @@ try {
           contextIsolation: false,  // false if you want to run e2e test with Spectron
         },
       });
-      send = win.webContents.send
+      send = win.webContents.send.bind(win.webContents)
 
       if (serve) {
         const debug = require('electron-debug');
@@ -113,7 +113,11 @@ try {
     })
   }
 
-  let installer = new Installer()
+  let installer = new Installer({
+    update: (state)=> {
+      send?.('app:installation-update', state);
+    }
+  })
 
   // open filesystem dialog to choose files
   ipcMain.handle('app:directory-dialog', async(event) => {
@@ -122,64 +126,41 @@ try {
       defaultPath: installer.directory
     });
     if (directory !== undefined) {
-      installer.directory = directory[0]
-      // send('app:directory-update', directory[0]);
-      let installation = await installer.check()
-      send('app:installation-update', installation);
+      installer.setDirectory(directory[0])
     }
   });
 
+  // Version selected
   ipcMain.handle('app:set-version', async(event,version) => {
-    send('app:installation-update',  {
-      directory : installer.directory,
-      version: installer.version,
-      initializing: true
-    });
-    installer.version = version
-    let installation = await installer.check()
-    send('app:installation-update', installation);
+    await installer.setVersion(version)
   })
 
-  ipcMain.handle('app:install-game', async (event) => {
+  ipcMain.handle('app:install-cancel', async (event) => {
+    installer.cancel()
+  });
 
-    notification({title: "Install Start", body: "Installation Start"})
+  ipcMain.handle('app:install-game', async (event) => {
 
     send('app:installation-init', {});
 
     await installer.install({
-      init: (e) => {
-        send('app:installation-start', {});
-        send('app:installation-update', e);
-      },
-      progress: (e,f) => {
-        send('app:downloading-progress', f);
-        send('app:installation-update', e);
-      },
-      complete: (e,f) => {
-        send('app:downloading-complete', f);
-        send('app:installation-update', e);
-      },
-      error: (e,f) => {
-        send('app:downloading-error', f);
-        send('app:installation-update', e);
-      },
-      final: (e) => {
+      // onInstallBegin: (e) => send('app:installation-start', {}),
+      // onUploadingProgress: (e,f) => send('app:downloading-progress', f),
+      // onUploadingComplete: (e,f) => send('app:downloading-complete', f),
+      // onInstallError: (e,f) => send('app:downloading-error', f),
+      onInstallComplete: (e) => {
         send('app:installation-complete', {});
-        send('app:installation-update', e);
         notification({title: 'Installation Complete', body: `Installation Complete`})
       }
     })
   })
 
+  ipcMain.handle('app:initialize', (event) => {
+    installer.update()
+  })
   ipcMain.handle('app:start-game', (event) => {
     installer.run()
   })
-
-  ipcMain.handle('app:initialize', async (event) => {
-    // send('app:directory-update', currentDirectory);
-    let installation = await installer.check()
-    send('app:installation-update', installation);
-  });
 
 } catch (e) {
   // Catch Error

@@ -90,7 +90,10 @@ class UpdateClientHeroku extends FileClient {
             port: 443,
             path: this.infopath + "/" + this.versionsurl,
             method: 'GET'
-        }, 'json');
+        }, 'json').then(response => {
+            // @ts-ignore
+            return response.versions;
+        });
     }
     files() {
         return request({
@@ -293,6 +296,7 @@ class LocalFileClient extends FileClient {
     setCurrentVersion(version) {
         this.version = version;
         this.active++;
+        // VersionControlMods
         return new Promise((resolve, reject) => {
             storage.set('version', version, error => {
                 this.active--;
@@ -316,6 +320,7 @@ exports.LocalFileClient = LocalFileClient;
 class GoogleDriveAPI extends FileClient {
     constructor() {
         super();
+        this.host = 'www.googleapis.com';
         this.client = null;
         this.drive = null;
         this.cache = {};
@@ -398,7 +403,8 @@ class GoogleDriveAPI extends FileClient {
     }
     stream(fileData) {
         return __awaiter(this, void 0, void 0, function* () {
-            return this.drive.files.get({ fileID: fileData.id, alt: 'media' }, { responseType: 'stream' });
+            let somereadstream = yield this.drive.files.get({ fileId: fileData.id, alt: 'media' }, { responseType: 'stream' });
+            return somereadstream.data;
         });
     }
 }

@@ -13,71 +13,128 @@ exports.Installer = void 0;
 const child_process_1 = require("child_process");
 const files_1 = require("./files");
 class Installer {
-    constructor() {
-        this.map = `battlenet:://starcraft/map/2/239053`;
-        this.strategy = "QUEUE";
+    constructor({ update }) {
+        this.map = `battlenet://starcraft/map/2/239053`;
+        this.strategy = "PARALLEL";
         this.fs = null;
         this.us = null;
         this.rs = null;
-        // let fileClient = new GoogleDriveAPI()
-        this.rs = new files_1.YandexDiskWebDAV();
+        this.state = {
+            downloading: false,
+            initializing: true,
+            ready: false,
+            error: false,
+            speed: 0,
+            progress: 0,
+            loaded: 0,
+            size: 0,
+            files: null,
+            versions: null,
+            version: "",
+            gameDirectory: "",
+            modDirectory: "",
+            host: "",
+        };
+        this.fileServers = null;
+        this.versions = null;
+        this.updateCallback = null;
+        this.requests = [];
+        this._files = null;
+        this.updateCallback = update;
+        this.fileServers = {
+            google: files_1.GoogleDriveAPI,
+            yandex: files_1.YandexDiskWebDAV
+        };
+        this.rs = new this.fileServers.google();
         this.fs = new files_1.LocalFileClient();
         this.us = new files_1.UpdateClientHeroku();
+        this.us.infourl = this.rs.infourl;
+        this.initialize();
+    }
+    initialize() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.state.host = this.rs.host;
+            this.state.modDirectory = this.fs.modDirectory;
+            this.state.gameDirectory = this.fs.gameDirectory;
+            this.update();
+            this.versions = yield this.us.versions();
+            this.state.versions = this.versions;
+            this.update();
+            yield this.check();
+            this.state.initializing = false;
+            this.update();
+        });
+    }
+    update() {
+        this.updateCallback(this.state);
     }
     get directory() {
         return this.fs.gameDirectory;
     }
-    set directory(value) {
-        this.fs.setGameDirectory(value);
+    setDirectory(value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.fs.setGameDirectory(value);
+            this.state.initializing = true;
+            this.state.gameDirectory = value;
+            this.update();
+            yield this.check();
+            this.state.initializing = false;
+            this.update();
+        });
     }
     get version() {
         return this.fs.version;
     }
-    set version(value) {
-        this.fs.setCurrentVersion(value);
-    }
-    versions() {
-        return this.us.versions();
+    setVersion(value) {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.fs.setCurrentVersion(value);
+            this.state.initializing = true;
+            this.state.version = value;
+            yield this.check();
+            this.state.initializing = false;
+            this.update();
+        });
     }
     run() {
+        //Windows
         (0, child_process_1.exec)(`rundll32 url.dll,FileProtocolHandler "${this.map}"`, function (err, data) {
             console.log(err);
             console.log(data.toString());
         });
-        // execFile(getInstallationPath()+"/"+ "StarCraft II.exe", function(err, data) {
-        //   console.log(err)
-        //   console.log(data.toString());
-        // });
     }
     files(version) {
         return __awaiter(this, void 0, void 0, function* () {
-            // @ts-ignore
-            let installationInfo = yield this.us.files();
-            // @ts-ignore
-            let versionFiles = installationInfo.filter(item => !item.path.startsWith("Versions"));
-            if (version) {
+            try {
                 // @ts-ignore
-                versionFiles.push(...installationInfo.filter(item => item.path.startsWith("Versions/" + version.directory)));
+                let installationInfo = yield this.us.files();
+                // @ts-ignore
+                let versionFiles = installationInfo.filter(item => !item.path.startsWith("Versions"));
+                if (version) {
+                    // @ts-ignore
+                    versionFiles.push(...installationInfo.filter(item => item.path.startsWith("Versions/" + version.directory)));
+                }
+                return versionFiles;
             }
-            return versionFiles;
+            catch (e) {
+                console.log("error", e);
+            }
         });
     }
     check() {
         return __awaiter(this, void 0, void 0, function* () {
-            let versions = yield this.versions();
             // @ts-ignore
-            let version = this.version && versions.versions.find(v => v.id === this.version);
-            let versionFiles = yield this.files(version);
+            let version = this.version && this.versions.find(v => v.id === this.version);
+            this._files = yield this.files(version);
             let size = 0;
             let ready = true;
             let error = false;
             let loaded = 0;
             let files = [];
-            for (let file of versionFiles) {
+            for (let file of this._files) {
                 let fileReady;
                 let fileProgress;
                 size += file.size;
-                let local = this.directory + file.path;
+                let local = this.fs.directory + "/" + file.path;
                 let localFileData = yield this.fs.info(local);
                 if (localFileData) {
                     loaded += localFileData.size;
@@ -97,6 +154,7 @@ class Installer {
                 }
                 files.push({
                     local,
+                    id: file.id,
                     name: file.path,
                     // @ts-ignore
                     loaded: localFileData.size || 0,
@@ -105,87 +163,94 @@ class Installer {
                     progress: fileProgress
                 });
             }
-            return {
-                // @ts-ignore
-                versions: versions.versions,
-                version,
-                speed: null,
-                progress: null,
-                downloading: null,
+            Object.assign(this.state, {
                 ready,
                 error,
-                gamedirectory: this.fs.gameDirectory,
-                modDirectory: this.directory,
-                host: this.rs.host,
                 loaded,
                 size,
-                files
-            };
+                files,
+                initializing: false
+            });
+            return this.state;
         });
     }
-    install({ init, progress, complete, final, error }) {
+    cancel() {
+        for (let request of this.requests) {
+            request.destroy();
+            this.state.downloading = false;
+            this.state.speed = 0;
+            this.state.progress = this.state.loaded / this.state.size * 100;
+            this.state.ready = this.state.files.find(f => f.ready !== true) === null;
+            this.state.error = this.state.files.find(f => f.error !== true) !== null;
+            this.update();
+        }
+    }
+    install({ onInstallBegin = null, onUploadingProgress = null, onUploadingComplete = null, onInstallComplete = null, onInstallError = null }) {
         return __awaiter(this, void 0, void 0, function* () {
-            let installationData = yield this.check();
-            installationData.downloading = true;
-            init(installationData);
+            this.state.initializing = true;
+            this.update();
+            yield this.check();
+            this.state.downloading = true;
+            this.update();
+            onInstallBegin === null || onInstallBegin === void 0 ? void 0 : onInstallBegin(this.state);
             let interval = setInterval(() => {
-                installationData.speed = 0;
-                installationData.progress = installationData.loaded / installationData.size * 100;
-                installationData.files.forEach(file => {
+                this.state.speed = 0;
+                this.state.progress = this.state.loaded / this.state.size * 100;
+                this.state.files.forEach(file => {
                     if (file.downloading) {
                         file.speed = file.recorded;
-                        installationData.speed += file.speed;
+                        this.state.speed += file.speed;
                         file.recorded = 0;
                     }
                 });
+                this.update();
             }, 1000);
             let promises = [];
-            let filesTotal = installationData.files.length;
+            let filesTotal = this.state.files.length;
             for (let fileIndex = 0; fileIndex < filesTotal; fileIndex++) {
-                let fileData = installationData.files[fileIndex];
+                let fileData = this.state.files[fileIndex];
                 if (!fileData.ready) {
                     let promise = new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
                         let writeStream = this.fs.create(fileData.name);
-                        this.rs.stream(fileData).then(res => {
-                            fileData.recorded = 0;
-                            fileData.loaded = 0;
-                            fileData.speed = 0;
-                            fileData.downloading = true;
-                            progress(installationData);
-                            // @ts-ignore
-                            res.on('data', data => {
-                                writeStream.write(data, () => {
-                                    if (!fileData.ready) {
-                                        fileData.loaded += data.length;
-                                        installationData.loaded += data.length;
-                                        fileData.progress = fileData.loaded / fileData.size * 100;
-                                        fileData.recorded += data.length;
-                                        progress(installationData);
-                                    }
-                                });
+                        let readStream = yield this.rs.stream(fileData);
+                        this.requests.push(readStream);
+                        Object.assign(fileData, { recorded: 0, loaded: 0, speed: 0, downloading: true });
+                        onUploadingProgress === null || onUploadingProgress === void 0 ? void 0 : onUploadingProgress(fileData);
+                        this.update();
+                        // @ts-ignore
+                        readStream.on('data', data => {
+                            writeStream.write(data, () => {
+                                if (!fileData.ready) {
+                                    fileData.loaded += data.length;
+                                    this.state.loaded += data.length;
+                                    fileData.progress = fileData.loaded / fileData.size * 100;
+                                    fileData.recorded += data.length;
+                                    onUploadingProgress === null || onUploadingProgress === void 0 ? void 0 : onUploadingProgress(fileData);
+                                    this.update();
+                                }
                             });
-                            // @ts-ignore
-                            res.on('end', () => {
-                                resolve(fileData);
-                            });
+                        });
+                        // @ts-ignore
+                        readStream.on('end', () => {
+                            resolve(fileData);
+                            this.requests.splice(this.requests.indexOf(readStream), 1);
                         });
                     }))
                         .then(() => {
                         fileData.ready = true;
                         fileData.loaded = fileData.size;
                         fileData.progress = 100;
-                        progress(installationData);
-                        complete(fileData);
+                        onUploadingComplete === null || onUploadingComplete === void 0 ? void 0 : onUploadingComplete(fileData);
                     })
                         .catch((message) => {
                         fileData.error = true;
-                        progress(installationData);
-                        error(fileData);
+                        onInstallError === null || onInstallError === void 0 ? void 0 : onInstallError(fileData);
                     })
                         .finally(() => {
                         delete fileData.recorded;
                         delete fileData.speed;
                         delete fileData.downloading;
+                        this.update();
                         return fileData;
                     });
                     if (this.strategy === "QUEUE") {
@@ -199,15 +264,14 @@ class Installer {
             if (this.strategy === "PARALLEL") {
                 yield Promise.all(promises);
             }
-            delete installationData.downloading;
-            if (installationData.files.find(f => f.ready !== true) === null) {
-                installationData.ready = true;
-            }
-            if (installationData.files.find(f => f.error !== true) !== null) {
-                installationData.error = true;
-            }
+            this.state.downloading = false;
+            this.state.speed = 0;
+            this.state.progress = this.state.loaded / this.state.size * 100;
+            this.state.ready = this.state.files.find(f => f.ready !== true) === null;
+            this.state.error = this.state.files.find(f => f.error !== true) !== null;
             clearInterval(interval);
-            final(installationData);
+            onInstallComplete === null || onInstallComplete === void 0 ? void 0 : onInstallComplete();
+            this.update();
         });
     }
 }

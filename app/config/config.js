@@ -4,7 +4,7 @@ exports.default = {
     google: {
         clientId: "626157511978-77etuu4h21krl1s267v51180cg45ot74.apps.googleusercontent.com",
         clientSecret: "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",
-        refreshToken: "1//0ctwhPF2xNOyrCgYIARAAGAwSNwF-L9Ir0fweauyWsgLUJm_xj8ce-3U6KetTGwQL4ag1k--ZLch5msFbgBmV6Pjfh8RgDQ4-nDo",
+        refreshToken: "1//0cx29ZkcRfWScCgYIARAAGAwSNwF-L9Irk0aPglyst2-F0V-NEIsmnxMUhcN8mQ8NrYNajx7_8qbyXdTSPy-GjCIG9JX1t7mKEZ0",
         rootFolderId: "1X7TKU3biEEI8f_QqZ0VlDiJQ8pgTlDNP"
     },
     yandex: {

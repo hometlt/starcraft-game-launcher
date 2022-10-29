@@ -23,6 +23,7 @@ export interface InstallationData {
   version?: string,
   versions?: any,
   gameDirectory?: string,
+  gameDirectoryCorrect?: boolean,
   modDirectory?: string,
   initializing?: boolean,
   speed?: number,
@@ -121,5 +122,8 @@ export class DataService {
   }
   public directoryDialog() {
     this.electron.ipcRenderer.invoke( 'app:directory-dialog' )
+  }
+  public directoryOpen() {
+    this.electron.ipcRenderer.invoke( 'app:game-directory-open' )
   }
 }

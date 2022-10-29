@@ -11,11 +11,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.YandexDiskWebDAV = exports.GoogleDriveAPI = exports.LocalFileClient = exports.WebDAV = exports.UpdateClientHeroku = exports.FileClient = void 0;
 const fs = require("fs");
-const googleapis_1 = require("googleapis");
+const drive_1 = require("@googleapis/drive");
+const google_auth_library_1 = require("google-auth-library");
 const https = require("https");
 const dom_js_1 = require("dom-js");
 const storage = require("electron-json-storage");
 const config_1 = require("./config/config");
+const child_process_1 = require("child_process");
+const path = require("path");
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 const errorCodes = {
     401: 'Auth error',
@@ -131,13 +134,13 @@ class WebDAV extends FileClient {
         let nodes = this._getNodes(root, nodeName);
         return nodes.length ? nodes[0].text() : '';
     }
-    list(path) {
+    list(directoryPath) {
         return __awaiter(this, void 0, void 0, function* () {
             let response = yield request({
                 host: this.host,
                 port: 443,
                 method: 'PROPFIND',
-                path: encodeURI(this._normalizePath(this.directory + path)),
+                path: encodeURI(this._normalizePath(this.directory + directoryPath)),
                 headers: {
                     Host: this.host,
                     Accept: '*/*',
@@ -158,7 +161,7 @@ class WebDAV extends FileClient {
                                 let name = this._getNodeValue(node, 'd:displayname');
                                 let directory = Boolean(this._getNodes(node, 'd:collection').length);
                                 dir.push({
-                                    path: path + "/" + name,
+                                    path: directoryPath + "/" + name,
                                     name,
                                     size: directory ? null : +this._getNodeValue(node, 'd:getcontentlength'),
                                     created: new Date(this._getNodeValue(node, 'd:creationdate')).getTime(),
@@ -175,13 +178,13 @@ class WebDAV extends FileClient {
             });
         });
     }
-    info(path) {
+    info(directoryPath) {
         return __awaiter(this, void 0, void 0, function* () {
             let response = yield request({
                 host: this.host,
                 port: 443,
                 method: 'PROPFIND',
-                path: encodeURI(this._normalizePath(this.directory + path)),
+                path: encodeURI(this._normalizePath(this.directory + directoryPath)),
                 headers: {
                     Host: this.host,
                     Accept: '*/*',
@@ -201,7 +204,7 @@ class WebDAV extends FileClient {
                                 dir.push({
                                     // href: _getNodeValue(node, 'd:href'),
                                     // isDir: Boolean(this._getNodes(node, 'd:collection').length),
-                                    // path: path,
+                                    // path: directoryPath,
                                     // name: this._getNodeValue(node, 'd:displayname'),
                                     size: +this._getNodeValue(node, 'd:getcontentlength'),
                                     created: new Date(this._getNodeValue(node, 'd:creationdate')).getTime(),
@@ -240,6 +243,7 @@ class LocalFileClient extends FileClient {
         super();
         this.version = "";
         this.directory = "";
+        this.gameDirectoryCorrect = false;
         this.gameDirectory = "C:/Program Files/StarCraft II";
         this.modDirectory = 'Mods/Commanders Conflict';
         this.active = 0;
@@ -247,15 +251,19 @@ class LocalFileClient extends FileClient {
         const HOTS_FOLDER = APPS_FOLDER + "\\Heroes Of The Strife";
         fs.mkdirSync(HOTS_FOLDER, { recursive: true });
         storage.setDataPath(HOTS_FOLDER);
-        let path = storage.getSync('path');
-        if (path.constructor === String) {
-            this.setGameDirectory(path);
+        let directoryPath = storage.getSync('path');
+        if (directoryPath.constructor === String) {
+            this.setGameDirectory(directoryPath);
         }
         let version = storage.getSync('version');
         if (version.constructor === String) {
             // @ts-ignore
             this.version = version;
         }
+    }
+    openDirectory(directory) {
+        const winPath = path.resolve(directory); //.replace('\\mnt\\c\\', 'c:\\\\');
+        (0, child_process_1.exec)(`explorer.exe "${winPath}"`);
     }
     resetGameDirectory() {
         return new Promise((resolve, reject) => {
@@ -271,6 +279,8 @@ class LocalFileClient extends FileClient {
         this.gameDirectory = directory;
         this.directory = this.gameDirectory + "/" + this.modDirectory;
         this.active++;
+        let executable = this.gameDirectory + "/StarCraft II.exe";
+        this.gameDirectoryCorrect = fs.existsSync(executable);
         return new Promise((resolve, reject) => {
             storage.set('path', this.gameDirectory, error => {
                 this.active--;
@@ -293,6 +303,45 @@ class LocalFileClient extends FileClient {
             modified: new Date(localFileStats.mtime).getTime()
         };
     }
+    _dirinfo(root, directory) {
+        let result = [];
+        let items = fs.readdirSync(root + "/" + directory);
+        for (let item of items) {
+            let fullname = root + "/" + directory + "/" + item;
+            if (fs.lstatSync(fullname).isDirectory()) {
+                result.push(...this._dirinfo(root, directory + item + "/"));
+            }
+            else {
+                result.push(directory + item);
+            }
+        }
+        return result;
+    }
+    files() {
+        let info = this._dirinfo(this.directory, "");
+        return info.map(fullname => (Object.assign({ path: fullname, name: fullname.substring(fullname.lastIndexOf("/")) }, this.info(fullname))));
+    }
+    copyVersionControlFiles(version) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let versionControlDirectory = `Versions/${version}/VersionControlMods/`;
+            let versionFiles = this.files().filter(item => item.path.startsWith(versionControlDirectory));
+            let source = this.directory + "/" + versionControlDirectory;
+            let destination = this.directory + "/VersionControlMods/";
+            if (fs.existsSync(destination)) {
+                let destinationFiles = fs.readdirSync(destination);
+                for (let file of destinationFiles) {
+                    yield fs.promises.rm(`${destination}/${file}`);
+                }
+            }
+            else {
+                fs.mkdirSync(destination, { recursive: true });
+            }
+            for (let file of versionFiles) {
+                let filename = file.path.replace(versionControlDirectory, "");
+                yield fs.promises.copyFile(source + filename, destination + filename);
+            }
+        });
+    }
     setCurrentVersion(version) {
         this.version = version;
         this.active++;
@@ -311,9 +360,9 @@ class LocalFileClient extends FileClient {
         return JSON.parse(fs.readFileSync("./../util/versions.json", { encoding: 'utf-8' }));
     }
     create(filename) {
-        let path = this.directory + "/" + filename;
-        fs.mkdirSync(path.replace(/\\/g, '/').substring(0, path.lastIndexOf("/")), { recursive: true });
-        return fs.createWriteStream(path);
+        let directoryPath = this.directory + "/" + filename;
+        fs.mkdirSync(directoryPath.replace(/\\/g, '/').substring(0, directoryPath.lastIndexOf("/")), { recursive: true });
+        return fs.createWriteStream(directoryPath);
     }
 }
 exports.LocalFileClient = LocalFileClient;
@@ -329,13 +378,13 @@ class GoogleDriveAPI extends FileClient {
         this.refreshToken = config_1.default.google.refreshToken;
         this.rootFolderId = config_1.default.google.rootFolderId;
         this.infourl = "files/gdrive";
-        this.client = googleapis_1.google.auth.fromJSON({
+        this.client = google_auth_library_1.auth.fromJSON({
             type: "authorized_user",
             client_id: this.clientId,
             client_secret: this.clientSecret,
             refresh_token: this.refreshToken
         });
-        this.drive = googleapis_1.google.drive({ version: 'v3', auth: this.client });
+        this.drive = (0, drive_1.drive)({ version: 'v3', auth: this.client });
     }
     list(folder) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -351,10 +400,10 @@ class GoogleDriveAPI extends FileClient {
             });
             let result = [];
             response.data.files.forEach(fileData => {
-                let path = folder + "/" + fileData.name;
-                this.cache[path] = fileData.id;
+                let directoryPath = folder + "/" + fileData.name;
+                this.cache[directoryPath] = fileData.id;
                 result.push({
-                    path: path,
+                    directoryPath: directoryPath,
                     name: fileData.name,
                     id: fileData.id,
                     size: fileData.size ? +fileData.size : null,

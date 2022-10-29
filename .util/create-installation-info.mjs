@@ -1,12 +1,8 @@
-import {getVersions, GoogleDriveAPI, YandexDiskWebDAV} from "../app/file-clients.mjs";
+import {GoogleDriveAPI, YandexDiskWebDAV} from "../app/files.js";
 import fs from 'fs'
 
 let disk = new YandexDiskWebDAV()
 let drive = new GoogleDriveAPI()
-
-
-
-
 
 async function readRecoursive(fileClient,directory,files){
   let items = await fileClient.list(directory)
@@ -33,7 +29,6 @@ async function checkInstallation(fileClient) {
   for(let version of installationInfo.versions){
     await readRecoursive(fileClient,"Versions/"+ version.directory,files)
   }
-
 
   return files
 }

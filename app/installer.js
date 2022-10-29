@@ -22,6 +22,7 @@ class Installer {
         this.state = {
             downloading: false,
             initializing: true,
+            copying: false,
             ready: false,
             error: false,
             speed: 0,
@@ -32,6 +33,7 @@ class Installer {
             versions: null,
             version: "",
             gameDirectory: "",
+            gameDirectoryCorrect: false,
             modDirectory: "",
             host: "",
         };
@@ -56,9 +58,11 @@ class Installer {
             this.state.host = this.rs.host;
             this.state.modDirectory = this.fs.modDirectory;
             this.state.gameDirectory = this.fs.gameDirectory;
+            this.state.gameDirectoryCorrect = this.fs.gameDirectoryCorrect;
             this.update();
             this.versions = yield this.us.versions();
             this.state.versions = this.versions;
+            this.state.version = this.fs.version;
             this.update();
             yield this.check();
             this.state.initializing = false;
@@ -71,19 +75,30 @@ class Installer {
     get directory() {
         return this.fs.gameDirectory;
     }
+    get version() {
+        return this.fs.version;
+    }
+    openGameDirectory() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.fs.openDirectory(this.state.gameDirectory);
+        });
+    }
+    openModDirectory() {
+        return __awaiter(this, void 0, void 0, function* () {
+            this.fs.openDirectory(this.state.modDirectory);
+        });
+    }
     setDirectory(value) {
         return __awaiter(this, void 0, void 0, function* () {
             this.fs.setGameDirectory(value);
             this.state.initializing = true;
-            this.state.gameDirectory = value;
+            this.state.gameDirectory = this.fs.gameDirectory;
+            this.state.gameDirectoryCorrect = this.fs.gameDirectoryCorrect;
             this.update();
             yield this.check();
             this.state.initializing = false;
             this.update();
         });
-    }
-    get version() {
-        return this.fs.version;
     }
     setVersion(value) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -92,6 +107,11 @@ class Installer {
             this.state.version = value;
             yield this.check();
             this.state.initializing = false;
+            this.state.copying = true;
+            this.update();
+            let version = this.version && this.versions.find(v => v.id === this.version);
+            yield this.fs.copyVersionControlFiles(version.directory);
+            this.state.copying = false;
             this.update();
         });
     }
@@ -126,7 +146,7 @@ class Installer {
             let version = this.version && this.versions.find(v => v.id === this.version);
             this._files = yield this.files(version);
             let size = 0;
-            let ready = true;
+            let ready = this.state.gameDirectoryCorrect;
             let error = false;
             let loaded = 0;
             let files = [];
@@ -267,10 +287,12 @@ class Installer {
             this.state.downloading = false;
             this.state.speed = 0;
             this.state.progress = this.state.loaded / this.state.size * 100;
-            this.state.ready = this.state.files.find(f => f.ready !== true) === null;
-            this.state.error = this.state.files.find(f => f.error !== true) !== null;
             clearInterval(interval);
             onInstallComplete === null || onInstallComplete === void 0 ? void 0 : onInstallComplete();
+            this.update();
+            yield this.setVersion(this.version);
+            this.state.error = this.state.files.find(f => f.error !== true) !== null;
+            this.state.ready = this.state.files.find(f => f.ready !== true) === null;
             this.update();
         });
     }

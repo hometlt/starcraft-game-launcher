@@ -13,6 +13,7 @@ export class Installer{
   state = {
     downloading: false,
     initializing: true,
+    copying: false,
     ready: false,
     error: false,
     speed: 0,
@@ -23,6 +24,7 @@ export class Installer{
     versions: null,
     version: "",
     gameDirectory: "",
+    gameDirectoryCorrect: false,
     modDirectory: "",
     host: "",
   }
@@ -50,32 +52,42 @@ export class Installer{
     this.state.host = this.rs.host
     this.state.modDirectory = this.fs.modDirectory
     this.state.gameDirectory = this.fs.gameDirectory
+    this.state.gameDirectoryCorrect = this.fs.gameDirectoryCorrect
     this.update()
     this.versions = await this.us.versions()
     this.state.versions = this.versions
+    this.state.version = this.fs.version
     this.update()
     await this.check()
     this.state.initializing = false
     this.update()
-  }
 
+
+  }
   update(){
     this.updateCallback(this.state)
   }
   get directory (){
     return this.fs.gameDirectory
   }
+  get version (){
+    return this.fs.version
+  }
+  async openGameDirectory(){
+    this.fs.openDirectory(this.state.gameDirectory)
+  }
+  async openModDirectory(){
+    this.fs.openDirectory(this.state.modDirectory)
+  }
   async setDirectory(value){
     this.fs.setGameDirectory(value)
     this.state.initializing = true
-    this.state.gameDirectory = value
+    this.state.gameDirectory = this.fs.gameDirectory
+    this.state.gameDirectoryCorrect = this.fs.gameDirectoryCorrect
     this.update()
     await this.check()
     this.state.initializing = false
     this.update()
-  }
-  get version(){
-    return this.fs.version
   }
   async setVersion(value){
     this.fs.setCurrentVersion(value)
@@ -83,6 +95,11 @@ export class Installer{
     this.state.version = value
     await this.check()
     this.state.initializing = false
+    this.state.copying = true
+    this.update()
+    let version = this.version && this.versions.find(v => v.id === this.version)
+    await this.fs.copyVersionControlFiles(version.directory)
+    this.state.copying = false
     this.update()
   }
   run (){
@@ -92,11 +109,11 @@ export class Installer{
       console.log(data.toString());
     });
   }
-
   async files(version){
     try{
       // @ts-ignore
       let installationInfo = await this.us.files()
+
       // @ts-ignore
       let versionFiles = installationInfo.filter(item => !item.path.startsWith("Versions"))
       if(version){
@@ -111,12 +128,17 @@ export class Installer{
   }
   _files= null
   async check() {
+
     // @ts-ignore
     let version = this.version && this.versions.find(v => v.id === this.version)
     this._files = await this.files(version)
 
+
+
+
+
     let size = 0;
-    let ready = true;
+    let ready = this.state.gameDirectoryCorrect;
     let error = false;
     let loaded = 0
     let files = []
@@ -157,6 +179,9 @@ export class Installer{
       })
     }
 
+
+
+
     Object.assign(this.state,{
       ready,
       error,
@@ -168,7 +193,6 @@ export class Installer{
 
     return this.state
   }
-
   cancel(){
     for(let request of this.requests){
       request.destroy()
@@ -272,11 +296,17 @@ export class Installer{
     this.state.downloading = false
     this.state.speed = 0;
     this.state.progress = this.state.loaded / this.state.size * 100
-    this.state.ready = this.state.files.find(f => f.ready !== true) === null
-    this.state.error = this.state.files.find(f => f.error !== true) !== null
 
     clearInterval(interval)
     onInstallComplete?.()
+
+    this.update()
+
+    await this.setVersion(this.version)
+
+    this.state.error = this.state.files.find(f => f.error !== true) !== null
+    this.state.ready = this.state.files.find(f => f.ready !== true) === null
     this.update()
   }
+
 }

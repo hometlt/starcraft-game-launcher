@@ -1,3 +1,4 @@
+import 'v8-compile-cache'
 import {app, BrowserWindow, ipcMain, screen, dialog, Notification} from 'electron';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -131,6 +132,14 @@ try {
   });
 
   // Version selected
+  ipcMain.handle('app:game-directory-open', async(event) => {
+    await installer.openGameDirectory()
+  })
+  // Version selected
+  ipcMain.handle('app:mod-directory-open', async(event) => {
+    await installer.openModDirectory()
+  })
+
   ipcMain.handle('app:set-version', async(event,version) => {
     await installer.setVersion(version)
   })

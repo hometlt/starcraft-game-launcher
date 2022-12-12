@@ -1,4 +1,6 @@
 export const APP_CONFIG = {
   production: true,
-  environment: 'WEB-PROD'
+  environment: 'WEB-PROD',
+  host: 'http://stormstar.herokuapp.com/',
+  infoURL: 'https://sites.google.com/view/commandersconflict/'
 };

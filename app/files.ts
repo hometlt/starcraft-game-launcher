@@ -122,7 +122,6 @@ export class WebDAV extends FileClient{
     });
     return res;
   }
-
   _getNodeValue(root, nodeName) {
     let nodes = this._getNodes(root, nodeName);
     return nodes.length ? nodes[0].text() : '';

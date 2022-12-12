@@ -1,0 +1,45 @@
+<%- include('partials/header') %>
+
+<div class="container mt-5">
+  <div class="col-sm-4">
+    <div class="card">
+
+      <% if(!user){ %>
+        <div class="card-body">
+          <a class="btn btn-block btn-social btn-facebook" href="/auth/discord" role="button"><i class="fab fa-discord"></i>Connect Discord</a>
+        </div>
+
+      <% } else { %>
+        <div class="card-body">
+          <img src="<%= user.discord_avatar%>" width="80px" height="80px" style="border-radius: 80px; float: left; margin-right: 20px">
+          <div>Discord:</div>
+          <div><%= user.discord_user %></div>
+          <a class="btn btn-light btn-sm" href="/auth/logout" role="button">Log Out</a>
+        </div>
+
+        <div class="card-body">
+          <% if(user.google_id){ %>
+            <img src="<%= user.google_avatar%>" width="80px" height="80px" style="border-radius: 80px; float: left; margin-right: 20px">
+            <div>Google:</div>
+            <div><%= user.google_user %></div>
+            <a class="btn btn-light btn-sm" href="/auth/unlink/google" role="button">Unlink</a>
+          <% } else { %>
+            <a class="btn btn-block btn-social btn-google" href="/auth/google" role="button"><i class="fab fa-google"></i>Connect Google</a>
+          <% } %>
+        </div>
+      <% } %>
+
+    </div>
+  </div>
+<% if(data.users) { %>
+  <div class="card-body">
+    <% for(let user of data.users) { %>
+      <img src="<%= user.avatar%>" width="40px" height="40px" style="border-radius:40px; float: left; margin-right: 10px">
+      <%= user.discord %>
+      <%= user.folder %>
+    <% } %>
+  </div>
+<% } %>
+</div>
+
+<%- include('partials/footer') %>

@@ -9,6 +9,10 @@ export default {
     token: 'OAuth 0000000000000000000000000000000000000000000000000000000000'
   },
   server: {
-    host: "sc2-all-races.herokuapp.com/hots"
+    host: "stormstar.herokuapp.com/storm"
+  },
+  battlenet:{
+    clientId:    "00000000000000000000000000000000",
+    clientSecret:"00000000000000000000000000000000"
   }
 }

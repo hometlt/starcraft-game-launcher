@@ -11,7 +11,11 @@ exports.default = {
         token: 'OAuth y0_AgAAAAABtKHXAAhrwwAAAADPIH6Z4KcCiFKYQx-3gqSOJYYNt54ipbQ'
     },
     server: {
-        host: "sc2-all-races.herokuapp.com/hots"
+        host: "stormstar.herokuapp.com/storm/"
+    },
+    battlenet: {
+        clientId: "72484a1d01d345d59aaa041c07003fac",
+        clientSecret: "ClFBKujfflaJLR5ekd9P3FLmAJvDJq9R"
     }
 };
 //# sourceMappingURL=config.js.map

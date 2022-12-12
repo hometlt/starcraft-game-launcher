@@ -1,0 +1,75 @@
+<header>
+  <div class="window-commands" *ngIf="windowed">
+    <a class="btn-minimize" (click)="minimize()">
+      <span>🗕</span>
+    </a>
+    <a class="btn-maximize" (click)="toggle()">
+      {{ windowed? `<span>🗖</span>` : `<span>🗗</span>` }}
+    </a>
+    <a class="btn-close" (click)="close()"><span>🗙</span></a>
+  </div>
+
+<!--  <a (click)="data.auth()">ACCOUNT</a>-->
+<!--  {{currentRoute}}-->
+<!--  <div  *ngIf="data.profile$ | async as profile" >{{profile | json}}</div>-->
+</header>
+<main>
+  <aside>
+    <div class="aside-info">
+      <img class="logo" src="../../../assets/icon.png" alt="Heroes Of The Strife"/>
+
+      <div style="text-align: center">
+        <a class="btn btn-link" href="https://www.patreon.com/commanders" target="_blank">
+          <img src="../../../assets/patreon.svg" alt="Boosty" title="Support Us On Patreon"/>
+        </a>
+        <a class="btn btn-link" href="https://discord.gg/8dkWjYgbjY" target="_blank">
+          <img src="../../../assets/discord.svg" alt="Boosty" title="Jon our Discord Group"/>
+        </a>
+        <a class="btn btn-link" href="https://boosty.to/commanders" target="_blank">
+          <img src="../../../assets/boosty.svg" alt="Boosty" title="Support Us On Boosty"/>
+        </a>
+      </div>
+    </div>
+
+
+    <div class="aside-commands" *ngIf="data.installation$ | async as app">
+      <div class="installation" *ngIf="app.downloading">
+        <div class="installation-tip">
+          Downloading:
+        </div>
+        <div class="installation-tip">
+          <div class="installation-amount">{{app.loaded | fileSize}} / {{app.size | fileSize}}</div>
+          <div class="app-speed">({{app.speed| fileSize :1:1: 2}}/sec)</div>
+        </div>
+        <div class="progress-bar-aside">
+          <div class="progress-bar__status-bar" [style]="{'--status': app.progress || '0','width': app.progress+'%'}"></div>
+        </div>
+      </div>
+
+      <div class="relative mt-10 mb-10">
+        <button id="" (click)="data.toggleDropdown('version',$event)" class="working-directory">
+          <span *ngIf="app.version">Version: {{app.version}}</span>
+          <span *ngIf="!app.version">Select Version<span></span></span>
+        </button>
+        <ul class="dropdown no-drag" [hidden]="data.dropdown !== 'version'">
+          <li *ngFor="let version of app.versions" (click)="data.setVersion(version.id)">{{version.title}}</li>
+        </ul>
+      </div>
+
+      <div class="btn-large-container" *ngIf="data.installation$ | async as app">
+        <a class="btn btn-large inactive" *ngIf="!app.version && app.ready">{{ 'PAGES.HOME.INSTALL' | translate }}</a>
+        <a class="btn btn-large inactive" *ngIf="app.initializing">{{ 'PAGES.HOME.INITIALIZING' | translate }}</a>
+        <a class="btn btn-large" *ngIf="!app.initializing && !app.ready && !app.downloading" (click)="data.installGame()">{{ 'PAGES.HOME.INSTALL' | translate }}</a>
+        <a class="btn btn-large" *ngIf="app.downloading" (click)="data.stopInstallation()">{{ 'PAGES.HOME.STOP' | translate }}</a>
+        <a class="btn btn-large" *ngIf="app.version && app.ready" (click)="data.startGame()">{{ 'PAGES.HOME.PLAY' | translate }}</a>
+        <a class="btn btn-large btn-settings" [class.active]="setup" (click)="toggleSetup()">⚙</a>
+      </div>
+    </div>
+  </aside>
+  <section [hidden]="currentRoute === '/'" >
+    <router-outlet class="content"></router-outlet>
+  </section>
+  <section [hidden]="currentRoute !== '/'" >
+    <iframe name="webview" [src]="infoURL | safe" width="100%"></iframe>
+  </section>
+</main>

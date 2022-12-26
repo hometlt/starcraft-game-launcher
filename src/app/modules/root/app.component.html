@@ -4,9 +4,12 @@
       <span>🗕</span>
     </a>
     <a class="btn-maximize" (click)="toggle()">
-      {{ windowed? `<span>🗖</span>` : `<span>🗗</span>` }}
+      <span *ngIf="windowed">🗖</span>
+      <span *ngIf="!windowed">🗗</span>
     </a>
-    <a class="btn-close" (click)="close()"><span>🗙</span></a>
+    <a class="btn-close" (click)="close()">
+      <span>🗙</span>
+    </a>
   </div>
 
 <!--  <a (click)="data.auth()">ACCOUNT</a>-->

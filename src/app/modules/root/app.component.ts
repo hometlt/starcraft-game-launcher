@@ -45,7 +45,8 @@ export class AppComponent implements OnInit {
 
 
   ngOnInit() {
-    this.electron = this.electronService.isElectron
+    // this.electron = this.electronService.isElectron
+    this.windowed = this.electronService.isElectron
 
     this.router.events.subscribe((event: Event) => {
       if (event instanceof NavigationStart) {
